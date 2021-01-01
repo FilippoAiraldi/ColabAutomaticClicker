@@ -1,0 +1,40 @@
+{
+	"manifest_version": 2,
+	"name": "Colab Automatic Clicker",
+	"version": "1.0",
+	"description": "Automatically clicks every minute the Connect button on a Colab page to prevent it from shutting down.",
+	"icons": {
+		"16": "icons/icon-16-off.png",
+		"32": "icons/icon-32-off.png",
+		"48": "icons/icon-48-off.png",
+		"96": "icons/icon-96-off.png"
+	},
+	"background": {
+		"scripts": [
+			"scripts/background.js"
+		]
+	},
+	"permissions": [
+		"tabs",
+		"activeTab"
+	],
+	"content_scripts": [
+		{
+			"matches": [
+				"https://colab.research.google.com/*"
+			],
+			"js": [
+				"scripts/contentscript.js"
+			]
+		}
+	],
+	"browser_action": {
+		"default_title": "Colab Automatic Clicker",
+		"default_icon": {
+			"16": "icons/icon-16-off.png",
+			"32": "icons/icon-32-off.png",
+			"48": "icons/icon-48-off.png",
+			"96": "icons/icon-96-off.png"
+		}
+	}
+}
