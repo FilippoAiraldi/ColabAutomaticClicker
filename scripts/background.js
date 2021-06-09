@@ -17,25 +17,26 @@ var imgs_off = {
 	128: "icons/icon-128-off.png"
 };
 
+var intervalSec = 60; // default
+
 function onError(error) {
 	console.error(`Colab Automatic Clicker: ${error}`);
 }
 
-function updateStatus(tabId, on) {
+function updateStatus(tabId, response) {
 	browser.browserAction.setIcon({
 		tabId: tabId,
-		path: on ? imgs_on : imgs_off
+		path: response.ok ? imgs_on : imgs_off
 	});
 }
 
-function sendMessage(tab) {
+function requestClicking(tab) {
 	browser.tabs
-		.sendMessage(tab.id, null)
+		.sendMessage(tab.id, { "intervalSec": intervalSec })
 		.then(response => updateStatus(tab.id, response))
 		.catch(onError);
 }
 
 browser.browserAction
 	.onClicked
-	.addListener(tab => sendMessage(tab));
-	
+	.addListener(tab => requestClicking(tab));

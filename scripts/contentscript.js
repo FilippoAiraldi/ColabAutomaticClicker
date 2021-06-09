@@ -1,17 +1,16 @@
 "use strict";
 
 var intervalId = null;
+var isClicking = () => intervalId !== null;
+var objNotFound = obj => obj === null || obj === undefined;
+var sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 
-function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-async function performClick() {    
+async function performClickingOnceAsync() {    
     var connectBtn = document
  		?.querySelector('#top-toolbar > colab-connect-button')
  		?.shadowRoot
  		?.querySelector('#connect')
-    if (connectBtn === null || connectBtn === undefined) {
+    if (objNotFound(connectBtn)) {
         return;
     }
     connectBtn.click();
@@ -19,19 +18,32 @@ async function performClick() {
     await sleep(500);
     
     var closeBtn = document?.querySelector('paper-icon-button[title=Close]');
-    if (connectBtn === null || connectBtn === undefined) {
+    if (objNotFound(closeBtn)) {
         return;
     }
     closeBtn.click(); 
 }
 
-browser.runtime.onMessage.addListener(() => {
-	if (intervalId === null) {
-		performClick();
-		intervalId = setInterval(performClick, 1000 * 60 * 1);
-	} else {
-		clearInterval(intervalId);
-		intervalId = null;
+function commenceClicking(intervalSec) {
+	if (intervalSec === undefined) {
+		intervalSec = 60; // default
 	}
- 	return Promise.resolve(intervalId !== null);
-});
+	performClickingOnceAsync();
+	intervalId = setInterval(performClickingOnceAsync, intervalSec * 1000);
+}
+
+function ceaseClicking() {
+	clearInterval(intervalId);
+	intervalId = null;
+}
+
+function manageRequest(message) {
+	if (!isClicking()) {
+		commenceClicking(message.intervalSec)
+	} else {
+		ceaseClicking()
+	}
+ 	return Promise.resolve({ "ok": isClicking() });
+}
+
+browser.runtime.onMessage.addListener(message => manageRequest(message));
