@@ -1,8 +1,8 @@
 "use strict";
 
 var intervalId = null;
-var isClicking = () => intervalId !== null;
-var objNotFound = obj => obj === null || obj === undefined;
+var objNotFound = obj => obj === undefined || obj === null;
+var isClicking = () => !objNotFound(intervalId)
 var sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 async function performClickingOnceAsync() {    
@@ -14,9 +14,7 @@ async function performClickingOnceAsync() {
         return;
     }
     connectBtn.click();
-    
     await sleep(500);
-    
     var closeBtn = document?.querySelector('paper-icon-button[title=Close]');
     if (objNotFound(closeBtn)) {
         return;
@@ -24,12 +22,12 @@ async function performClickingOnceAsync() {
     closeBtn.click(); 
 }
 
-function commenceClicking(intervalSec) {
-	if (intervalSec === undefined) {
-		intervalSec = 60; // default
+function commenceClicking(seconds) {
+	if (seconds === undefined) {
+		seconds = 60; // default
 	}
 	performClickingOnceAsync();
-	intervalId = setInterval(performClickingOnceAsync, intervalSec * 1000);
+	intervalId = setInterval(performClickingOnceAsync, seconds * 1000);
 }
 
 function ceaseClicking() {
@@ -38,12 +36,10 @@ function ceaseClicking() {
 }
 
 function manageRequest(message) {
-	if (!isClicking()) {
-		commenceClicking(message.intervalSec)
-	} else {
-		ceaseClicking()
+	if (message.id === "clicking-browseraction") {
+		isClicking() ? ceaseClicking() : commenceClicking(message.interval);
+		return Promise.resolve({ ok: isClicking() });
 	}
- 	return Promise.resolve({ "ok": isClicking() });
 }
 
 browser.runtime.onMessage.addListener(message => manageRequest(message));
