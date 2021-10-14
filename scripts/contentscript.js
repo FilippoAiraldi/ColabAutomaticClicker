@@ -35,11 +35,12 @@ function ceaseClicking() {
 	intervalId = null;
 }
 
-function manageRequest(message) {
-	if (message.id === "clicking-browseraction") {
-		isClicking() ? ceaseClicking() : commenceClicking(message.interval);
-		return Promise.resolve({ ok: isClicking() });
+chrome.runtime.onMessage.addListener(
+	function(message, sender, sendResponse) {
+		if (message.id === "clicking-browseraction") {
+			isClicking() ? ceaseClicking() : commenceClicking(message.interval);
+			sendResponse({ ok: isClicking() });
+		}
 	}
-}
+);
 
-browser.runtime.onMessage.addListener(message => manageRequest(message));

@@ -4,6 +4,7 @@
 	"author": "Filippo Airaldi",
 	"version": "1.1",
 	"description": "Automatically clicks every minute the Connect button on a Colab page to prevent it from shutting down.",
+	"homepage_url": "https://github.com/FilippoAiraldi/ColabAutomaticClicker",
 	"permissions": [
 		"tabs",
 		"activeTab"
